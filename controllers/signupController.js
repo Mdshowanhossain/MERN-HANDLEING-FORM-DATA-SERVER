@@ -60,6 +60,10 @@ const SignInUser = async (req, res) => {
 
     const matchPassword = await bcrypt.compare(password, user.password);
 
+    if (!matchPassword) {
+      return res.status(422).json({ error: "Wrong Credentials!" });
+    }
+
     if (matchPassword === true) {
       return res.status(200).json({ user });
     }
