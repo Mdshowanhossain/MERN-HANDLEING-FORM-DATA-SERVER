@@ -6,7 +6,7 @@ const app = express();
 require("dotenv").config();
 require("./DB/db.js");
 
-const Signup = require("./Routes/signup");
+const Signup = require("./Routes/register");
 
 const PORT = process.env.PORT || 8000;
 
