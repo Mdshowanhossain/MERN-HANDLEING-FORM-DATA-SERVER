@@ -36,6 +36,10 @@ const SignUpUser = async (req, res) => {
       password,
       confirmpassword,
     });
+
+    const token = await saveUserData.generateToken();
+    console.log(token);
+
     await saveUserData.save();
     res.status(201).json({ success: "User Created Successfully" });
   } catch (err) {
@@ -59,6 +63,11 @@ const SignInUser = async (req, res) => {
     }
 
     const matchPassword = await bcrypt.compare(password, user.password);
+
+    res.cookie("authCookie", token, {
+      expires: new Date(Date.now() + "1hr"),
+      httpOnly: true,
+    });
 
     if (!matchPassword) {
       return res.status(422).json({ error: "Wrong Credentials!" });

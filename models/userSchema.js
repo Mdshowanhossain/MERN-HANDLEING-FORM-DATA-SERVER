@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const UserSchema = mongoose.Schema(
   {
@@ -23,6 +24,7 @@ const UserSchema = mongoose.Schema(
       require: true,
       trim: true,
     },
+
     password: {
       type: String,
       require: true,
@@ -33,6 +35,15 @@ const UserSchema = mongoose.Schema(
       require: true,
       trim: true,
     },
+    tokens: [
+      {
+        token: {
+          type: String,
+          require: true,
+          trim: true,
+        },
+      },
+    ],
   },
   { timeStamps: true }
 );
@@ -44,6 +55,25 @@ UserSchema.pre("save", async function (next) {
     next();
   }
 });
+
+UserSchema.methods.generateToken = async function () {
+  try {
+    let token = await jwt.sign(
+      {
+        _id: this._id,
+        name: this.name,
+        profession: this.profession,
+      },
+      process.env.JWT_SECRET_KEY
+    );
+
+    this.tokens = this.tokens.concat({ token: token });
+    await this.save();
+    return token;
+  } catch (err) {
+    return res.status(500).json({ error: "Server side problem" });
+  }
+};
 
 const userModel = mongoose.model("people", UserSchema);
 module.exports = userModel;
